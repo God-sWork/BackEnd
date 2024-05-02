@@ -1,25 +1,24 @@
 package gods.work.backend.controller;
 
-import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.AddTrainerRequest;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RequiredArgsConstructor
-@RestController
-//@RequestMapping("/login")
+@Controller
 public class LoginController {
 
     private final TrainerService trainerService;
 
-    @PostMapping("/join")
-    public ResponseEntity<String> join(@RequestBody AddTrainerRequest request) {
+    @PostMapping("/signup")
+    public String signup(AddTrainerRequest request) {
         trainerService.save(request);
-        return ResponseEntity.ok("success");
+        return "redirect:/login";
     }
 
     @PostMapping("/login")
