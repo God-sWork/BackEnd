@@ -5,12 +5,15 @@ import gods.work.backend.dto.AddTrainerRequest;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.repository.TrainerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class TrainerService {
+public class TrainerService implements UserDetailsService {
 
     private final TrainerRepository trainerRepository;
 
@@ -49,5 +52,10 @@ public class TrainerService {
     public Trainer findByEmail(String email) {
         return trainerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("unexpected email: " + email));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
     }
 }
