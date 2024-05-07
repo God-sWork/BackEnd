@@ -11,7 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -22,21 +23,15 @@ public class TokenProvider {
 
     private final JwtProperties jwtProperties;
 
-    public String generateToken(Trainer trainer, Duration expiredAt) {
-        Date now = new Date();
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), trainer);
-    }
-
-    private String makeToken(Date expiry, Trainer trainer) {
+    public String createToken(Trainer trainer) {
         Date now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
-                .setExpiration(expiry)
+                .setExpiration(Date.from(Instant.now().plus(jwtProperties.getExpirationHours(), ChronoUnit.HOURS)))
                 .setSubject(trainer.getEmail())
-                .claim("id", trainer.getTrainerId())
+                .claim("id", trainer.getTrainerId()) // todo: trainer 내용 수정
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }

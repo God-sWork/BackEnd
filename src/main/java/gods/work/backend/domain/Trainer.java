@@ -2,19 +2,21 @@ package gods.work.backend.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 
+@SuperBuilder
 @Table(name = "trainer")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-public class Trainer implements UserDetails {
+public class Trainer extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,16 +51,10 @@ public class Trainer implements UserDetails {
     private String registrationYmd;
 
     @Column(name = "is_active")
-    private String isActive;
+    private boolean isActive;
 
     @Column(name = "is_admin")
-    private String isAdmin;
-
-    @Builder
-    public Trainer(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+    private boolean isAdmin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

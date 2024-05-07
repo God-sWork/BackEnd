@@ -5,8 +5,6 @@ import gods.work.backend.domain.Trainer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
 @RequiredArgsConstructor
 @Service
 public class TokenService {
@@ -23,6 +21,6 @@ public class TokenService {
         int trainerId = refreshTokenService.findByRefreshToken(refreshToken).getTrainerId();
         Trainer trainer = trainerService.findById(trainerId);
 
-        return tokenProvider.generateToken(trainer, Duration.ofHours(2));
+        return tokenProvider.createToken(trainer);
     }
 }

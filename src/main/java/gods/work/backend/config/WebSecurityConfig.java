@@ -1,20 +1,18 @@
 package gods.work.backend.config;
 
 import gods.work.backend.config.jwt.TokenProvider;
-import gods.work.backend.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -22,24 +20,32 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
-    private final UserDetailsService userDetailsService;
-    private final TrainerService trainerService;
-
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/login", "/signup"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity
-                .httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(requests ->
-                        requests.requestMatchers(allowedUrls).permitAll()
-                                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                                .anyRequest().authenticated()
-                )
-                .build();
+        http.csrf().disable();
+
+        http.headers().frameOptions().disable();
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeRequests()
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/signup").permitAll()
+//                .requestMatchers(HttpMethod.GET, "/web/login").permitAll()
+//                .requestMatchers(HttpMethod.GET, "/web/signup").permitAll()
+                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                .anyRequest().authenticated()
+                .and().addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+//        http.formLogin().loginPage("/web/login");
+//        http.exceptionHandling().accessDeniedPage("/web/forbidden");
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
