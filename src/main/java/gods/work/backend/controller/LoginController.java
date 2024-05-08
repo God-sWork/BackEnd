@@ -1,27 +1,47 @@
 package gods.work.backend.controller;
 
-import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.AddTrainerRequest;
 import gods.work.backend.dto.LoginTrainerRequest;
-import gods.work.backend.service.TokenService;
 import gods.work.backend.service.TrainerService;
+import gods.work.backend.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import java.time.Duration;
 
 @RequiredArgsConstructor
-@RestController
+@Controller
 public class LoginController {
 
     private final TrainerService trainerService;
-    private final TokenService tokenService;
 
+    public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(2);
+    public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginTrainerRequest request) {
-        return ResponseEntity.ok(trainerService.login(request));
+    public String login(LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = trainerService.login(requestDto);
+
+        if (accessToken == null) {
+            return "redirect:/view/login";
+        }
+
+        // 쿠키에 토큰 추가
+        int cookieMaxAge = (int) ACCESS_TOKEN_DURATION.toSeconds();
+        CookieUtil.deleteCookie(request, response, ACCESS_TOKEN_COOKIE_NAME);
+        CookieUtil.addCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken, cookieMaxAge);
+
+        return "redirect:/view/index";
+    }
+
+    @PostMapping("/signup")
+    public String signup(AddTrainerRequest request) {
+        trainerService.addTrainer(request.toEntity());
+        return "redirect:/view/login";
     }
 
 //    @PostMapping("/token")

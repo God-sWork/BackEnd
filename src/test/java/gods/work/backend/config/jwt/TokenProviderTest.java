@@ -37,7 +37,7 @@ public class TokenProviderTest {
                 .build());
 
         // when
-        String token = tokenProvider.createToken(testUser);
+        String token = tokenProvider.generateToken(testUser, Duration.ofHours(14));
 
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtProperties.getSecretKey())

@@ -1,5 +1,6 @@
 package gods.work.backend.service;
 
+import gods.work.backend.config.jwt.JwtProperties;
 import gods.work.backend.config.jwt.TokenProvider;
 import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
@@ -13,12 +14,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+
 @RequiredArgsConstructor
 @Service
 public class TrainerService implements UserDetailsService {
 
     private final TrainerRepository trainerRepository;
     private final TokenProvider tokenProvider;
+    private final JwtProperties jwtProperties;
 
 
     public String login(LoginTrainerRequest dto) {
@@ -27,13 +31,17 @@ public class TrainerService implements UserDetailsService {
         Trainer trainer = trainerRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
 
+        // 비밀번호 확인
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
         if (!encoder.matches(password, trainer.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
 
-        return tokenProvider.createToken(trainer);
+        // 엑세스, 리프레쉬 토큰 발급
+        String accessToken = tokenProvider.generateToken(trainer, Duration.ofHours(jwtProperties.getExpirationHoursAccess()));
+//        String refreshToken = tokenProvider.generateToken(trainer, Duration.ofDays(jwtProperties.getExpirationDaysRefresh()));
+
+        return accessToken;
     }
 
     @Transactional

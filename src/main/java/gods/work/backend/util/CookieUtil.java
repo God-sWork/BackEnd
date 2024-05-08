@@ -10,7 +10,6 @@ import java.util.Base64;
 
 public class CookieUtil {
 
-    // 요청값을 바탕으로 쿠키 추가
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");

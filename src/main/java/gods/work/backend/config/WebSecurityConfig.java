@@ -21,6 +21,8 @@ public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
 
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
         http.csrf().disable();
@@ -32,13 +34,16 @@ public class WebSecurityConfig {
         http.authorizeRequests()
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/signup").permitAll()
-//                .requestMatchers(HttpMethod.GET, "/web/login").permitAll()
-//                .requestMatchers(HttpMethod.GET, "/web/signup").permitAll()
+                .requestMatchers(HttpMethod.GET, "/view/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/view/signup").permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
                 .and().addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-//        http.formLogin().loginPage("/web/login");
+        http.exceptionHandling()
+                .authenticationEntryPoint(customAuthenticationEntryPoint);
+
+//        http.formLogin().loginPage("/view/login");
 //        http.exceptionHandling().accessDeniedPage("/web/forbidden");
 
         return http.build();
