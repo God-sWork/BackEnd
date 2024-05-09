@@ -20,8 +20,6 @@ public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
 
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/api/login", "/api/signup", "/api/token"};
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
         http.csrf().disable();
@@ -37,14 +35,6 @@ public class WebSecurityConfig {
         );
 
         http.addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
-
-//        http.authorizeRequests()
-//                .requestMatchers("/api/login").permitAll()
-//                .requestMatchers("/api/signup").permitAll()
-//                .requestMatchers(PathRequest.toH2Console()).permitAll()
-//                .anyRequest().authenticated()
-//                .and().addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

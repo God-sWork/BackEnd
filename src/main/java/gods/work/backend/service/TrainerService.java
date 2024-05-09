@@ -1,5 +1,6 @@
 package gods.work.backend.service;
 
+import gods.work.backend.config.error.exception.NotFoundException;
 import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.repository.TrainerRepository;
@@ -22,7 +23,7 @@ public class TrainerService implements UserDetailsService {
         String email = dto.getEmail();
         String password = dto.getPassword();
         Trainer trainer = trainerRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(email));
+                .orElseThrow(NotFoundException::new);
 
         // 비밀번호 확인
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
