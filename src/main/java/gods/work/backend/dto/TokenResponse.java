@@ -1,4 +1,4 @@
-package gods.work.backend.domain;
+package gods.work.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class LoginResponse {
+public class TokenResponse {
     private String accessToken;
 }

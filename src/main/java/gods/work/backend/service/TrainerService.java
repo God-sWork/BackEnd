@@ -5,6 +5,7 @@ import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.repository.TrainerRepository;
 import gods.work.backend.util.DateUtil;
+import gods.work.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,7 +47,9 @@ public class TrainerService implements UserDetailsService {
 
     @Transactional
     public void updateTrainer(Trainer updatedTrainer) {
-        // todo
+        String loginUser = SecurityUtil.getLoginUsername();
+
+
         Trainer.builder().build();
     }
 

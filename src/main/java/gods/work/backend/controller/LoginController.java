@@ -3,7 +3,7 @@ package gods.work.backend.controller;
 import gods.work.backend.config.jwt.JwtProperties;
 import gods.work.backend.config.jwt.TokenProvider;
 import gods.work.backend.constants.WebConstants;
-import gods.work.backend.domain.LoginResponse;
+import gods.work.backend.dto.TokenResponse;
 import gods.work.backend.domain.RefreshToken;
 import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
@@ -35,7 +35,7 @@ public class LoginController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
         Trainer trainer = trainerService.login(requestDto);
 
         // 쿠키에 리프레쉬 토큰 추가
@@ -56,21 +56,23 @@ public class LoginController {
         // 엑세스 토큰 생성
         String accessToken = tokenProvider.generateToken(trainer, Duration.ofHours(jwtProperties.getExpirationHoursAccess()));
         log.debug("access token: {}", accessToken);
-        return ResponseEntity.ok().body(new LoginResponse(accessToken));
+        return ResponseEntity.ok().body(new TokenResponse(accessToken));
     }
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
 
+        // todo: blackList 추가?
+
         log.debug("logout success");
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/token")
-    public ResponseEntity<String> createToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<TokenResponse> createToken(@RequestHeader("Authorization") String token) {
         String newAccessToken = tokenService.createNewAccessToken(token);
         log.debug("new access token: {}", newAccessToken);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newAccessToken);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(newAccessToken));
     }
 }
