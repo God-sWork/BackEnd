@@ -1,6 +1,7 @@
 package gods.work.backend.dto;
 
 import gods.work.backend.domain.Trainer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,18 +11,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 public class AddTrainerRequest {
 
+    @Schema(description = "이메일", example = "test@email.com")
     private String email;
 
+    @Schema(description = "비밀번호")
     private String password;
 
+    @Schema(description = "이름")
     private String name;
 
+    @Schema(description = "성별", example = "남")
     private String gender;
 
+    @Schema(description = "생년월일", example = "19990619", format = "yyyyMMdd")
     private String birthYmd;
 
+    @Schema(description = "주소", example = "경기도 수원시 이의동")
     private String address;
 
+    @Schema(description = "휴대폰 번호", example = "01012345678")
     private String phoneNumber;
 
     public Trainer toEntity() {

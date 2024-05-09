@@ -2,6 +2,7 @@ package gods.work.backend.controller;
 
 import gods.work.backend.config.jwt.JwtProperties;
 import gods.work.backend.config.jwt.TokenProvider;
+import gods.work.backend.constants.WebConstants;
 import gods.work.backend.domain.LoginResponse;
 import gods.work.backend.domain.RefreshToken;
 import gods.work.backend.domain.Trainer;
@@ -16,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -27,8 +26,6 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/api")
 public class LoginController {
-
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
     private final TrainerService trainerService;
     private final TokenProvider tokenProvider;
@@ -52,8 +49,8 @@ public class LoginController {
         refreshTokenRepository.save(refreshToken);
 
         int cookieMaxAge = (int) refresh_token_duration.toSeconds();
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
-        CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, cookieMaxAge);
+        CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
+        CookieUtil.addCookie(response, WebConstants.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, cookieMaxAge);
         log.debug("refresh token: {}", refreshToken);
 
         // 엑세스 토큰 생성
@@ -64,9 +61,7 @@ public class LoginController {
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
-
-        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+        CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
 
         log.debug("logout success");
         return ResponseEntity.noContent().build();
