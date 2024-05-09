@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,7 +20,7 @@ public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
 
-    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/api/login", "/api/signup", "/api/token"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
@@ -31,20 +30,20 @@ public class WebSecurityConfig {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeRequests()
-                .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/signup").permitAll()
-                .requestMatchers(HttpMethod.GET, "/view/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/view/signup").permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                .anyRequest().authenticated()
-                .and().addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.authorizeHttpRequests(requests ->
+                requests.requestMatchers("/api/token", "/api/login", "/api/trainer/signup").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
+        );
 
-        http.exceptionHandling()
-                .authenticationEntryPoint(customAuthenticationEntryPoint);
+        http.addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-//        http.formLogin().loginPage("/view/login");
-//        http.exceptionHandling().accessDeniedPage("/web/forbidden");
+//        http.authorizeRequests()
+//                .requestMatchers("/api/login").permitAll()
+//                .requestMatchers("/api/signup").permitAll()
+//                .requestMatchers(PathRequest.toH2Console()).permitAll()
+//                .anyRequest().authenticated()
+//                .and().addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

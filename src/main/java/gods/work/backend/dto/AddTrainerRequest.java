@@ -1,10 +1,8 @@
 package gods.work.backend.dto;
 
 import gods.work.backend.domain.Trainer;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -12,12 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 public class AddTrainerRequest {
 
-    @NotEmpty(message = "이메일을 입력해주세요")
-    @Email
     private String email;
 
-    @NotEmpty(message = "비밀번호를 입력해주세요")
-    @Pattern(regexp = " ^(?=.*[A-Za-z])(?=.*\\\\d)[A-Za-z\\\\d~!@#$%^&*()+|=]{8,20}$", message = "숫자, 문자 포함 및 8~20자")
     private String password;
 
     private String name;

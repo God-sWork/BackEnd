@@ -1,52 +1,81 @@
 package gods.work.backend.controller;
 
-import gods.work.backend.dto.AddTrainerRequest;
+import gods.work.backend.config.jwt.JwtProperties;
+import gods.work.backend.config.jwt.TokenProvider;
+import gods.work.backend.domain.LoginResponse;
+import gods.work.backend.domain.RefreshToken;
+import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
+import gods.work.backend.repository.RefreshTokenRepository;
+import gods.work.backend.service.TokenService;
 import gods.work.backend.service.TrainerService;
 import gods.work.backend.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor
-@Controller
+@RestController
+@RequestMapping("/api")
 public class LoginController {
 
-    private final TrainerService trainerService;
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 
-    public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(2);
-    public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
+    private final TrainerService trainerService;
+    private final TokenProvider tokenProvider;
+    private final JwtProperties jwtProperties;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenService tokenService;
 
 
     @PostMapping("/login")
-    public String login(LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = trainerService.login(requestDto);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
+        Trainer trainer = trainerService.login(requestDto);
 
-        if (accessToken == null) {
-            return "redirect:/view/login";
-        }
+        // 쿠키에 리프레쉬 토큰 추가
+        Duration refresh_token_duration = Duration.ofDays(jwtProperties.getExpirationDaysRefresh());
 
-        // 쿠키에 토큰 추가
-        int cookieMaxAge = (int) ACCESS_TOKEN_DURATION.toSeconds();
-        CookieUtil.deleteCookie(request, response, ACCESS_TOKEN_COOKIE_NAME);
-        CookieUtil.addCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken, cookieMaxAge);
+        String newRefreshToken = tokenProvider.generateToken(trainer, refresh_token_duration);
+        RefreshToken refreshToken = refreshTokenRepository.findByTrainerId(trainer.getTrainerId())
+                .map(entity -> entity.update(newRefreshToken))
+                .orElse(new RefreshToken(trainer.getTrainerId(), newRefreshToken));
 
-        return "redirect:/view/index";
+        refreshTokenRepository.save(refreshToken);
+
+        int cookieMaxAge = (int) refresh_token_duration.toSeconds();
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+        CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, cookieMaxAge);
+        log.debug("refresh token: {}", refreshToken);
+
+        // 엑세스 토큰 생성
+        String accessToken = tokenProvider.generateToken(trainer, Duration.ofHours(jwtProperties.getExpirationHoursAccess()));
+        log.debug("access token: {}", accessToken);
+        return ResponseEntity.ok().body(new LoginResponse(accessToken));
     }
 
-    @PostMapping("/signup")
-    public String signup(AddTrainerRequest request) {
-        trainerService.addTrainer(request.toEntity());
-        return "redirect:/view/login";
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+
+        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+
+        log.debug("logout success");
+        return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/token")
-//    public ResponseEntity<String> createToken(@RequestHeader("Authorization") String token) {
-//        String newAccessToken = tokenService.createNewAccessToken(token);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(newAccessToken);
-//    }
+    @PostMapping("/token")
+    public ResponseEntity<String> createToken(@RequestHeader("Authorization") String token) {
+        String newAccessToken = tokenService.createNewAccessToken(token);
+        log.debug("new access token: {}", newAccessToken);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newAccessToken);
+    }
 }

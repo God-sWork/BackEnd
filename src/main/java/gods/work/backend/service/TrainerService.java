@@ -1,7 +1,5 @@
 package gods.work.backend.service;
 
-import gods.work.backend.config.jwt.JwtProperties;
-import gods.work.backend.config.jwt.TokenProvider;
 import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.repository.TrainerRepository;
@@ -14,18 +12,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-
 @RequiredArgsConstructor
 @Service
 public class TrainerService implements UserDetailsService {
 
     private final TrainerRepository trainerRepository;
-    private final TokenProvider tokenProvider;
-    private final JwtProperties jwtProperties;
 
-
-    public String login(LoginTrainerRequest dto) {
+    public Trainer login(LoginTrainerRequest dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
         Trainer trainer = trainerRepository.findByEmail(email)
@@ -37,11 +30,7 @@ public class TrainerService implements UserDetailsService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
 
-        // 엑세스, 리프레쉬 토큰 발급
-        String accessToken = tokenProvider.generateToken(trainer, Duration.ofHours(jwtProperties.getExpirationHoursAccess()));
-//        String refreshToken = tokenProvider.generateToken(trainer, Duration.ofDays(jwtProperties.getExpirationDaysRefresh()));
-
-        return accessToken;
+        return trainer;
     }
 
     @Transactional
@@ -72,6 +61,6 @@ public class TrainerService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        return findByEmail(username);
     }
 }
