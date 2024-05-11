@@ -22,9 +22,9 @@ public class TrainerController {
         return ResponseEntity.status(HttpStatus.CREATED).body("success");
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<String> update(@RequestBody UpdateTrainerRequest request) {
-        trainerService.updateTrainer(request.toEntity());
+    @PostMapping("/update/{trainerId}")
+    public ResponseEntity<String> update(@RequestBody UpdateTrainerRequest request, @PathVariable int trainerId) {
+        trainerService.updateTrainer(request.toEntity(), trainerId);
         return ResponseEntity.status(HttpStatus.CREATED).body("success");
     }
 

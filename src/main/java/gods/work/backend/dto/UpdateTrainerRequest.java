@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 public class UpdateTrainerRequest {
 
+    @Schema(description = "트레이너 아이디")
+    private int trainerId;
+
     @Schema(description = "비밀번호", example = "1234")
     private String password;
 

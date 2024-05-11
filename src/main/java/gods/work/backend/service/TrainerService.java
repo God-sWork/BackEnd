@@ -5,7 +5,7 @@ import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
 import gods.work.backend.repository.TrainerRepository;
 import gods.work.backend.util.DateUtil;
-import gods.work.backend.util.SecurityUtil;
+import gods.work.backend.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,11 +46,14 @@ public class TrainerService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateTrainer(Trainer updatedTrainer) {
-        String loginUser = SecurityUtil.getLoginUsername();
+    public void updateTrainer(Trainer updatedTrainer, int trainerId) {
+        Trainer existTrainer = trainerRepository.findById(trainerId)
+                .orElseThrow(NotFoundException::new);
 
+        // null이 아닌 값만 복사
+        ObjectUtil.updateObjectProperty(updatedTrainer, existTrainer);
 
-        Trainer.builder().build();
+        trainerRepository.save(existTrainer);
     }
 
     public Trainer findById(int id) {
