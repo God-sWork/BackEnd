@@ -81,16 +81,16 @@ public class TokenProviderTest {
     @Test
     void getAuthentication() {
         // given
-        String email = "test@email.com";
+        String loginId = "test";
         String token = JwtFactory.builder()
-                .subject(email)
+                .subject(loginId)
                 .build()
                 .createToken(jwtProperties);
 
         // when
         Authentication authentication = tokenProvider.getAuthentication(token);
         // then
-        assertThat(((UserDetails) authentication.getPrincipal()).getUsername()).isEqualTo(email);
+        assertThat(((UserDetails) authentication.getPrincipal()).getUsername()).isEqualTo(loginId);
     }
 
     @DisplayName("getUserId() 테스트: 토큰 기반으로 유저 ID를 가져올 수 있다.")

@@ -2,7 +2,7 @@ package gods.work.backend.service;
 
 import gods.work.backend.config.error.exception.NotFoundException;
 import gods.work.backend.domain.Trainer;
-import gods.work.backend.dto.LoginTrainerRequest;
+import gods.work.backend.dto.MailDto;
 import gods.work.backend.repository.TrainerRepository;
 import gods.work.backend.util.DateUtil;
 import gods.work.backend.util.ObjectUtil;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,21 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrainerService implements UserDetailsService {
 
     private final TrainerRepository trainerRepository;
-
-    public Trainer login(LoginTrainerRequest dto) {
-        String trainerLoginId = dto.getTrainer_login_id();
-        String password = dto.getPassword();
-        Trainer trainer = trainerRepository.findByTrainerLoginId(trainerLoginId)
-                .orElseThrow(NotFoundException::new);
-
-        // 비밀번호 확인
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (!trainer.getPassword().equals("1234") && !encoder.matches(password, trainer.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
-        }
-
-        return trainer;
-    }
+    private final EmailService emailService;
 
     @Transactional
     public void addTrainer(Trainer newTrainer) {
@@ -56,14 +41,35 @@ public class TrainerService implements UserDetailsService {
         trainerRepository.save(existTrainer);
     }
 
+    public void sendPasswordResetMail(String trainerLoginId, String email) {
+        Trainer trainer = findByTrainerLoginId(trainerLoginId);
+        if (trainer == null || !trainer.getEmail().equals(email)) {
+            throw new NotFoundException();
+        }
+        sendEmail(trainer);
+    }
+
+    private void sendEmail(Trainer trainer) {
+        // 임시 비밀번호 생성
+        MailDto mailDto = emailService.createMailAndChargePassword(trainer);
+        // 메일 발송
+        emailService.mailSend(mailDto);
+    }
+
     public Trainer findById(int id) {
         return trainerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("unexpected id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("unexpected trainerId: " + id));
+    }
+
+    public String findTrainerLoginIdByEmail(String email) {
+        return trainerRepository.findByEmail(email)
+                .orElseThrow(NotFoundException::new)
+                .getTrainerLoginId();
     }
 
     public Trainer findByTrainerLoginId(String trainerLoginId) {
         return trainerRepository.findByTrainerLoginId(trainerLoginId)
-                .orElseThrow(() -> new IllegalArgumentException("unexpected trainerLoginId: " + trainerLoginId));
+                .orElseThrow(NotFoundException::new);
     }
 
     @Override

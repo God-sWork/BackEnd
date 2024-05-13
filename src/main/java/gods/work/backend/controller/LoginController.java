@@ -3,13 +3,12 @@ package gods.work.backend.controller;
 import gods.work.backend.config.jwt.JwtProperties;
 import gods.work.backend.config.jwt.TokenProvider;
 import gods.work.backend.constants.WebConstants;
-import gods.work.backend.dto.TokenResponse;
 import gods.work.backend.domain.RefreshToken;
 import gods.work.backend.domain.Trainer;
 import gods.work.backend.dto.LoginTrainerRequest;
+import gods.work.backend.dto.TokenResponse;
 import gods.work.backend.repository.RefreshTokenRepository;
-import gods.work.backend.service.TokenService;
-import gods.work.backend.service.TrainerService;
+import gods.work.backend.service.LoginService;
 import gods.work.backend.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,16 +26,15 @@ import java.time.Duration;
 @RequestMapping("/api")
 public class LoginController {
 
-    private final TrainerService trainerService;
     private final TokenProvider tokenProvider;
     private final JwtProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final TokenService tokenService;
+    private final LoginService loginService;
 
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
-        Trainer trainer = trainerService.login(requestDto);
+        Trainer trainer = loginService.login(requestDto);
 
         // 쿠키에 리프레쉬 토큰 추가
         Duration refresh_token_duration = Duration.ofDays(jwtProperties.getExpirationDaysRefresh());
@@ -71,7 +69,7 @@ public class LoginController {
 
     @PostMapping("/token")
     public ResponseEntity<TokenResponse> createToken(@RequestHeader("Authorization") String token) {
-        String newAccessToken = tokenService.createNewAccessToken(token);
+        String newAccessToken = loginService.createNewAccessToken(token);
         log.debug("new access token: {}", newAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(newAccessToken));
     }
