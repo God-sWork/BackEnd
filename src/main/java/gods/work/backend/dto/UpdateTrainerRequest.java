@@ -39,6 +39,7 @@ public class UpdateTrainerRequest {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
 
         return Trainer.builder()
+                .trainerId(this.trainerId)
                 .password(encoder.encode(this.password))
                 .name(this.name)
                 .gender(this.gender)

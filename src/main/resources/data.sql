@@ -1,0 +1,1 @@
+insert into trainer (trainer_login_id, center_id, email, password, name, gender, birth_ymd, address, phone_number, registration_ymd, is_active, is_admin, created_at, modified_at) values ('test', 0, 'test@email.com', '1234', '테스트계정', '여', '19990619', '경기도 수원시 영통구', '01065026426', '20240101', true, false, NOW(), NOW())

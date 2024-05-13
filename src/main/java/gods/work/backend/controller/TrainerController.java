@@ -1,6 +1,7 @@
 package gods.work.backend.controller;
 
 import gods.work.backend.dto.AddTrainerRequest;
+import gods.work.backend.dto.TrainerDto;
 import gods.work.backend.dto.UpdateTrainerRequest;
 import gods.work.backend.service.TrainerService;
 import gods.work.backend.util.SecurityUtil;
@@ -16,13 +17,18 @@ public class TrainerController {
 
     private final TrainerService trainerService;
 
+    @GetMapping("/{trainerId}")
+    public ResponseEntity<TrainerDto> getById(@PathVariable Integer trainerId) {
+        return ResponseEntity.status(HttpStatus.OK).body(trainerService.findById(trainerId).toDto());
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody AddTrainerRequest request) {
         trainerService.addTrainer(request.toEntity());
         return ResponseEntity.status(HttpStatus.CREATED).body("success");
     }
 
-    @PostMapping("/update/{trainerId}")
+    @PutMapping("/{trainerId}")
     public ResponseEntity<String> update(@RequestBody UpdateTrainerRequest request, @PathVariable int trainerId) {
         trainerService.updateTrainer(request.toEntity(), trainerId);
         return ResponseEntity.status(HttpStatus.CREATED).body("success");

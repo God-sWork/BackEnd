@@ -34,7 +34,7 @@ public class TokenProvider {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .setSubject(trainer.getEmail())
+                .setSubject(trainer.getTrainerLoginId())
                 .claim("id", trainer.getTrainerId())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();

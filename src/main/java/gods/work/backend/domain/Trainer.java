@@ -1,8 +1,8 @@
 package gods.work.backend.domain;
 
+import gods.work.backend.dto.TrainerDto;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,6 +22,9 @@ public class Trainer extends BaseEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "trainer_id", updatable = false)
     private int trainerId;
+
+    @Column(name = "trainer_login_id")
+    private String trainerLoginId;
 
     @Column(name = "center_id")
     private int centerId;
@@ -63,7 +66,7 @@ public class Trainer extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return this.trainerLoginId;
     }
 
     @Override
@@ -84,5 +87,18 @@ public class Trainer extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() { // 계정 사용 기능 여부 반환
         return false;
+    }
+
+    public TrainerDto toDto() {
+        return TrainerDto.builder()
+                .trainerLoginId(this.trainerLoginId)
+                .centerId(this.centerId)
+                .email(this.email)
+                .name(this.name)
+                .gender(this.gender)
+                .birthYmd(this.birthYmd)
+                .address(this.address)
+                .phoneNumber(this.phoneNumber)
+                .build();
     }
 }

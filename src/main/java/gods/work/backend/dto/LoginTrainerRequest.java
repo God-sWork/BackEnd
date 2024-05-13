@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 public class LoginTrainerRequest {
 
-    @Schema(description = "email", example = "test@test.com")
-    private String email;
+    @Schema(description = "trainer_login_id", example = "test")
+    private String trainer_login_id;
 
     @Schema(description = "password", example = "1234")
     private String password;

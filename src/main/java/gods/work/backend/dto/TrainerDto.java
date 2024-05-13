@@ -2,17 +2,23 @@ package gods.work.backend.dto;
 
 import gods.work.backend.domain.Trainer;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
-public class AddTrainerRequest {
+public class TrainerDto {
 
     @Schema(description = "로그인 아이디", example = "test")
     private String trainerLoginId;
+
+    @Schema(description = "센터 아이디", example = "0")
+    private int centerId;
 
     @Schema(description = "이메일", example = "test@email.com")
     private String email;
