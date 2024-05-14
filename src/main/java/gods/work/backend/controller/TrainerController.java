@@ -1,10 +1,15 @@
 package gods.work.backend.controller;
 
+import gods.work.backend.constants.WebConstants;
 import gods.work.backend.dto.AddTrainerRequest;
 import gods.work.backend.dto.TrainerDto;
 import gods.work.backend.dto.UpdateTrainerRequest;
+import gods.work.backend.dto.WithdrawalTrainerRequest;
 import gods.work.backend.service.TrainerService;
+import gods.work.backend.util.CookieUtil;
 import gods.work.backend.util.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +46,7 @@ public class TrainerController {
     @GetMapping("/find-login-id/{email}")
     public ResponseEntity<Map<String, String>> findByEmail(@PathVariable String email) {
         Map<String, String> result = new HashMap<>();
-        result.put("loginId", trainerService.findTrainerLoginIdByEmail(email));
+        result.put("login_id", trainerService.findTrainerLoginIdByEmail(email));
         return ResponseEntity.ok(result);
     }
 
@@ -49,6 +54,15 @@ public class TrainerController {
     @GetMapping("/find-password")
     public ResponseEntity<String> resetPassword(@RequestParam String loginId, @RequestParam String email) {
         trainerService.sendPasswordResetMail(loginId, email);
+        return ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/withdrawal")
+    public ResponseEntity<String> withdrawal(@RequestBody WithdrawalTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
+        trainerService.withdrawalTrainer(requestDto.getPassword());
+
+        // 로그아웃
+        CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
         return ResponseEntity.ok("success");
     }
 

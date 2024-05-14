@@ -59,6 +59,9 @@ public class Trainer extends BaseEntity implements UserDetails {
     @Column(name = "is_admin")
     private boolean isAdmin;
 
+    @Column(name = "is_withdrawal")
+    private boolean isWithdrawal;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

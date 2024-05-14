@@ -11,28 +11,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor
 public class AddTrainerRequest {
 
-    @Schema(description = "로그인 아이디", example = "test")
+    @Schema(description = "로그인 아이디", example = "yewon.e19")
     private String trainerLoginId;
 
-    @Schema(description = "이메일", example = "test@email.com")
+    @Schema(description = "이메일", example = "yewon.e19@gmail.com")
     private String email;
 
     @Schema(description = "비밀번호", example = "1234")
     private String password;
 
-    @Schema(description = "이름", example = "테스트")
+    @Schema(description = "이름", example = "이예원")
     private String name;
 
-    @Schema(description = "성별", example = "남")
+    @Schema(description = "성별", example = "여")
     private String gender;
 
-    @Schema(description = "생년월일", example = "19990619", format = "yyyyMMdd")
+    @Schema(description = "생년월일", example = "19990620", format = "yyyyMMdd")
     private String birthYmd;
 
     @Schema(description = "주소", example = "경기도 수원시 이의동")
     private String address;
 
-    @Schema(description = "휴대폰 번호", example = "01012345678")
+    @Schema(description = "휴대폰 번호", example = "01022223333")
     private String phoneNumber;
 
     public Trainer toEntity() {

@@ -6,31 +6,34 @@ import gods.work.backend.dto.MailDto;
 import gods.work.backend.repository.TrainerRepository;
 import gods.work.backend.util.DateUtil;
 import gods.work.backend.util.ObjectUtil;
+import gods.work.backend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class TrainerService implements UserDetailsService {
 
     private final TrainerRepository trainerRepository;
     private final EmailService emailService;
 
-    @Transactional
     public void addTrainer(Trainer newTrainer) {
         if (trainerRepository.findByTrainerLoginId(newTrainer.getTrainerLoginId()).isPresent()) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다");
         }
         newTrainer.setActive(true);
         newTrainer.setRegistrationYmd(DateUtil.getCurrentDateAsString());
+        newTrainer.setWithdrawal(false);
         trainerRepository.save(newTrainer);
     }
 
-    @Transactional
     public void updateTrainer(Trainer updatedTrainer, int trainerId) {
         Trainer existTrainer = trainerRepository.findById(trainerId)
                 .orElseThrow(NotFoundException::new);
@@ -54,6 +57,18 @@ public class TrainerService implements UserDetailsService {
         MailDto mailDto = emailService.createMailAndChargePassword(trainer);
         // 메일 발송
         emailService.mailSend(mailDto);
+    }
+
+    public void withdrawalTrainer(String password) {
+        Trainer trainer = findByTrainerLoginId(SecurityUtil.getLoginUsername());
+
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (trainer == null || !encoder.matches(password, trainer.getPassword())) {
+            throw new NotFoundException();
+        }
+
+        trainer.setWithdrawal(false);
+        trainerRepository.save(trainer);
     }
 
     public Trainer findById(int id) {
