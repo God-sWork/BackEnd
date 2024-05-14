@@ -6,6 +6,7 @@ import gods.work.backend.repository.TrainerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class EmailService {
         MailDto mailDto = new MailDto();
         mailDto.setTo(trainer.getEmail());
         mailDto.setSubject(trainer.getTrainerLoginId() + "님의 임시 비밀번호 안내 이메일 입니다.");
-        mailDto.setContent("임시 비밀번호는 [" + newPassword + "] 입니다. 새로운 비밀번호를 등록해주세요.");
+        mailDto.setContent(trainer.getTrainerLoginId() + " 님의 임시 비밀번호는 [ " + newPassword + " ] 입니다. 유출 위험이 있으니, 새로운 비밀번호를 등록해주세요.");
         updatePassword(newPassword, trainer.getTrainerId());
         return mailDto;
     }
@@ -48,6 +49,7 @@ public class EmailService {
         return str;
     }
 
+    @Async
     public void mailSend(MailDto mailDto) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailDto.getTo());
