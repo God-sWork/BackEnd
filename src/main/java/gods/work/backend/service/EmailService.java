@@ -26,7 +26,7 @@ public class EmailService {
         MailDto mailDto = new MailDto();
         mailDto.setTo(trainer.getEmail());
         mailDto.setSubject(trainer.getTrainerLoginId() + "님의 임시 비밀번호 안내 이메일 입니다.");
-        mailDto.setContent("[" + newPassword + "] 비밀번호로 로그인 해주세요.");
+        mailDto.setContent("임시 비밀번호는 [" + newPassword + "] 입니다. 새로운 비밀번호를 등록해주세요.");
         updatePassword(newPassword, trainer.getTrainerId());
         return mailDto;
     }
