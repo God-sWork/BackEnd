@@ -2,6 +2,7 @@ package gods.work.backend.controller;
 
 import gods.work.backend.config.jwt.JwtProperties;
 import gods.work.backend.config.jwt.TokenProvider;
+import gods.work.backend.constants.Path;
 import gods.work.backend.constants.WebConstants;
 import gods.work.backend.domain.RefreshToken;
 import gods.work.backend.domain.Trainer;
@@ -19,13 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
 public class LoginController {
 
     private final TokenProvider tokenProvider;
@@ -34,7 +32,7 @@ public class LoginController {
     private final LoginService loginService;
 
 
-    @PostMapping("/login")
+    @PostMapping(Path.LOGIN)
     public ResponseEntity<TokenResponse> login(@RequestBody LoginTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
         Trainer trainer = loginService.login(requestDto);
 
@@ -59,7 +57,7 @@ public class LoginController {
         return ResponseEntity.ok().body(new TokenResponse(accessToken));
     }
 
-    @GetMapping("/logout")
+    @GetMapping(Path.LOGOUT)
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
 
@@ -69,7 +67,7 @@ public class LoginController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/token")
+    @PostMapping(Path.TOKEN)
     public ResponseEntity<TokenResponse> createToken(@RequestHeader("Authorization") String token) {
         String newAccessToken = loginService.createNewAccessToken(token);
         log.debug("new access token: {}", newAccessToken);

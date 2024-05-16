@@ -1,5 +1,6 @@
 package gods.work.backend.controller;
 
+import gods.work.backend.constants.Path;
 import gods.work.backend.constants.WebConstants;
 import gods.work.backend.dto.AddTrainerRequest;
 import gods.work.backend.dto.TrainerDto;
@@ -20,30 +21,29 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/trainer")
 public class TrainerController {
 
     private final TrainerService trainerService;
 
-    @GetMapping("/{trainerId}")
+    @GetMapping(Path.GET_BY_ID)
     public ResponseEntity<TrainerDto> getById(@PathVariable Integer trainerId) {
         return ResponseEntity.ok(trainerService.findById(trainerId).toDto());
     }
 
-    @PostMapping("/signup")
+    @PostMapping(Path.SIGNUP)
     public ResponseEntity<String> signup(@RequestBody AddTrainerRequest request) {
         trainerService.addTrainer(request.toEntity());
         return ResponseEntity.status(HttpStatus.CREATED).body("success");
     }
 
-    @PutMapping("/{trainerId}")
-    public ResponseEntity<String> update(@RequestBody UpdateTrainerRequest request, @PathVariable int trainerId) {
+    @PutMapping(Path.UPDATE)
+    public ResponseEntity<String> update(@RequestBody UpdateTrainerRequest request, @PathVariable Integer trainerId) {
         trainerService.updateTrainer(request.toEntity(), trainerId);
         return ResponseEntity.status(HttpStatus.CREATED).body("success");
     }
 
     // 이메일로 아이디 찾기
-    @GetMapping("/find-login-id/{email}")
+    @GetMapping(Path.LOGIN_ID)
     public ResponseEntity<Map<String, String>> findByEmail(@PathVariable String email) {
         Map<String, String> result = new HashMap<>();
         result.put("login_id", trainerService.findTrainerLoginIdByEmail(email));
@@ -51,13 +51,13 @@ public class TrainerController {
     }
 
     // 이메일로 비밀번호 초기화 링크 전송
-    @GetMapping("/find-password")
+    @GetMapping(Path.PASSWORD)
     public ResponseEntity<String> resetPassword(@RequestParam String loginId, @RequestParam String email) {
         trainerService.sendPasswordResetMail(loginId, email);
         return ResponseEntity.ok("success");
     }
 
-    @PostMapping("/withdrawal")
+    @PostMapping(Path.WITHDRAWAL)
     public ResponseEntity<String> withdrawal(@RequestBody WithdrawalTrainerRequest requestDto, HttpServletRequest request, HttpServletResponse response) {
         trainerService.withdrawalTrainer(requestDto.getPassword());
 
