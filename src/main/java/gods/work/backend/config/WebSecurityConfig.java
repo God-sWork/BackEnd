@@ -1,6 +1,7 @@
 package gods.work.backend.config;
 
 import gods.work.backend.config.jwt.TokenProvider;
+import gods.work.backend.constants.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,7 @@ public class WebSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeHttpRequests(requests ->
-                requests.requestMatchers("/api/token", "/api/login", "/api/trainer/signup", "/api/trainer/find-**").permitAll()
+                requests.requestMatchers(Path.TOKEN, Path.LOGIN, Path.SIGNUP, Path.FIND_PASSWORD, Path.FIND_LOGIN_ID).permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
         );

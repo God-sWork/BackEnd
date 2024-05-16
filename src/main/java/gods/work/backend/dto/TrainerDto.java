@@ -23,9 +23,6 @@ public class TrainerDto {
     @Schema(description = "이메일", example = "test@email.com")
     private String email;
 
-    @Schema(description = "비밀번호", example = "1234")
-    private String password;
-
     @Schema(description = "이름", example = "테스트")
     private String name;
 
@@ -42,12 +39,9 @@ public class TrainerDto {
     private String phoneNumber;
 
     public Trainer toEntity() {
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-
         return Trainer.builder()
                 .trainerLoginId(this.trainerLoginId)
                 .email(this.email)
-                .password(encoder.encode(this.password))
                 .name(this.name)
                 .gender(this.gender)
                 .birthYmd(this.birthYmd)
@@ -60,8 +54,6 @@ public class TrainerDto {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
 
         this.email = updatedTrainer.getEmail() == null ? this.email : updatedTrainer.getEmail();
-        this.password = updatedTrainer.getPassword() == null || updatedTrainer.getPassword().isEmpty()
-                ? this.password : encoder.encode(updatedTrainer.getPassword());
         this.name = updatedTrainer.getName() == null ? this.name : updatedTrainer.getName();
         this.gender = updatedTrainer.getGender() == null ? this.gender : updatedTrainer.getGender();
         this.birthYmd = updatedTrainer.getBirthYmd() == null ? this.birthYmd : updatedTrainer.getBirthYmd();

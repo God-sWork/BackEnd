@@ -8,10 +8,11 @@ public class Path {
     public static final String TOKEN = API + "/token";
 
     public static final String TRAINER = API + "/trainer";
-    public static final String GET_BY_ID = TRAINER + "/{trainerId}";
+    public static final String LOGIN_TRAINER = TRAINER + "/login_trainer";
+    public static final String TRAINER_BY_ID = TRAINER + "/{trainerId}";
     public static final String SIGNUP = TRAINER + "/signup";
     public static final String UPDATE = TRAINER + "/{trainerId}";
-    public static final String LOGIN_ID = TRAINER + "/login-id/{email}";
-    public static final String PASSWORD = TRAINER + "/password";
+    public static final String FIND_LOGIN_ID = TRAINER + "/find-login-id/{email}";
+    public static final String FIND_PASSWORD = TRAINER + "/find-password";
     public static final String WITHDRAWAL = TRAINER + "/withdrawal";
 }

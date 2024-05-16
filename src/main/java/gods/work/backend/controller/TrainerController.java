@@ -21,11 +21,17 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping(Path.TRAINER)
 public class TrainerController {
 
     private final TrainerService trainerService;
 
-    @GetMapping(Path.GET_BY_ID)
+    @GetMapping(Path.LOGIN_TRAINER)
+    public ResponseEntity<TrainerDto> getLoginTrainer() {
+        return ResponseEntity.ok(trainerService.findByTrainerLoginId(SecurityUtil.getLoginUsername()).toDto());
+    }
+
+    @GetMapping(Path.TRAINER_BY_ID)
     public ResponseEntity<TrainerDto> getById(@PathVariable Integer trainerId) {
         return ResponseEntity.ok(trainerService.findById(trainerId).toDto());
     }
@@ -43,7 +49,7 @@ public class TrainerController {
     }
 
     // 이메일로 아이디 찾기
-    @GetMapping(Path.LOGIN_ID)
+    @GetMapping(Path.FIND_LOGIN_ID)
     public ResponseEntity<Map<String, String>> findByEmail(@PathVariable String email) {
         Map<String, String> result = new HashMap<>();
         result.put("login_id", trainerService.findTrainerLoginIdByEmail(email));
@@ -51,7 +57,7 @@ public class TrainerController {
     }
 
     // 이메일로 비밀번호 초기화 링크 전송
-    @GetMapping(Path.PASSWORD)
+    @GetMapping(Path.FIND_PASSWORD)
     public ResponseEntity<String> resetPassword(@RequestParam String loginId, @RequestParam String email) {
         trainerService.sendPasswordResetMail(loginId, email);
         return ResponseEntity.ok("success");
@@ -64,10 +70,5 @@ public class TrainerController {
         // 로그아웃
         CookieUtil.deleteCookie(request, response, WebConstants.REFRESH_TOKEN_COOKIE_NAME);
         return ResponseEntity.ok("success");
-    }
-
-    @GetMapping
-    public String test() {
-        return "로그인 사용자: " + SecurityUtil.getLoginUsername();
     }
 }
