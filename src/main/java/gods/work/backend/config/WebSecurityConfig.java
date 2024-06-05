@@ -30,6 +30,7 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(requests ->
                 requests.requestMatchers(Path.TOKEN, Path.LOGIN, Path.SIGNUP, Path.FIND_PASSWORD, Path.FIND_LOGIN_ID).permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
         );
