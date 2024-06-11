@@ -22,7 +22,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'javax.xml.bind:jaxb-api:2.3.1' // xml 문서와 java 문객체 간 매핑 자동화
 
-    runtimeOnly 'com.h2database:h2'
+//    runtimeOnly 'com.h2database:h2'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -33,6 +33,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
+    implementation 'com.jcraft:jsch:0.1.55'
 
 }
 

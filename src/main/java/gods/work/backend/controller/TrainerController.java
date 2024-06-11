@@ -21,7 +21,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(Path.TRAINER)
 public class TrainerController {
 
     private final TrainerService trainerService;
